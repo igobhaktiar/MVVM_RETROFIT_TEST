@@ -1,6 +1,8 @@
 package firgobhaktiar.synergybatch6.mvvmretrofittest.viewmodel
 
+import android.app.Application
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,26 +13,25 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MoviesViewModel : ViewModel() {
+class MoviesViewModel(application: Application) : AndroidViewModel(application) {
     private var movieLiveData = MutableLiveData<List<Result>>()
 
-    fun getPopularMovies() {
-        RetrofitInstance.api.getPopularMovies("579ee285ae7bd28a36a775b73826f3a1")
+    fun popularMovies() {
+        RetrofitInstance.api.getPopularMovies()
             .enqueue(object : Callback<MoviesDataModel> {
                 override fun onResponse(
                     call: Call<MoviesDataModel>,
                     response: Response<MoviesDataModel>
                 ) {
-                    if (response.body() != null) {
-                        movieLiveData.value = response.body()!!.results
-                    } else {
-                        return
-                    }
+                    val body = response.body()
+                    Log.d("MOVIES", body?.results.toString())
+                    movieLiveData.postValue(body?.results)
                 }
 
                 override fun onFailure(call: Call<MoviesDataModel>, t: Throwable) {
-                    Log.d("TAG", t.message.toString())
+                    Log.e("MOVIES", t.localizedMessage)
                 }
+
             })
     }
 

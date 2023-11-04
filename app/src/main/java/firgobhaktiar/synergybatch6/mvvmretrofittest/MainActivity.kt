@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import firgobhaktiar.synergybatch6.mvvmretrofittest.adapter.MovieAdapter
 import firgobhaktiar.synergybatch6.mvvmretrofittest.databinding.ActivityMainBinding
+import firgobhaktiar.synergybatch6.mvvmretrofittest.viewmodel.MoviesFatory
 import firgobhaktiar.synergybatch6.mvvmretrofittest.viewmodel.MoviesViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -18,13 +19,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         recyclerViewSetup()
-        viewModel = ViewModelProvider(this)[MoviesViewModel::class.java]
-        viewModel.getPopularMovies()
+        val application = requireNotNull(this).application
+        val factory = MoviesFatory(application)
+        viewModel = ViewModelProvider(this, factory).get(MoviesViewModel::class.java)
+        viewModel.popularMovies()
         viewModel.observerMovieLiveData().observe(this, Observer { movieList ->
             movieAdapter.setMovieList(movieList)
         })
+        setContentView(binding.root)
     }
 
     private fun recyclerViewSetup() {
